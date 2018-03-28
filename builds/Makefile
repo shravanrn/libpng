@@ -1,4 +1,4 @@
-.PHONY : build clean
+.PHONY : build debugbuild nondebugbuild clean
 
 .DEFAULT_GOAL := build
 
@@ -12,20 +12,23 @@ NACL_LIBM32=$(SANDBOXING_NACL_DIR)/native_client/toolchain/linux_x86/pnacl_newli
 NACL_LIBM64=$(SANDBOXING_NACL_DIR)/native_client/toolchain/linux_x86/pnacl_newlib/x86_64-nacl/lib/libm.a
 NACL_AR32=$(SANDBOXING_NACL_DIR)/native_client/toolchain/linux_x86/pnacl_newlib/bin/i686-nacl-ar
 NACL_AR64=$(SANDBOXING_NACL_DIR)/native_client/toolchain/linux_x86/pnacl_newlib/bin/x86_64-nacl-ar
+override CFLAGS += -fPIC
+CFLAGS32 = $(CFLAGS) -m32
+CFLAGS64 = $(CFLAGS) -m64
 
 x32/non_nacl_build:
 	-mkdir -p ./x32/non_nacl_build
-	cd ./x32/non_nacl_build && cmake -D CMAKE_C_COMPILER=clang -D CMAKE_C_FLAGS='-m32' -D ZLIB_INCLUDE_DIR=$(ZLIB_DIR) -D ZLIB_LIBRARY=$(ZLIB_DIR)/builds/x32/non_nacl_build/libz.a ../../../
+	cd ./x32/non_nacl_build && cmake -D CMAKE_C_COMPILER=clang -D CMAKE_C_FLAGS='$(CFLAGS32)' -D ZLIB_INCLUDE_DIR=$(ZLIB_DIR) -D ZLIB_LIBRARY=$(ZLIB_DIR)/builds/x32/non_nacl_build/libz.a ../../../
 	$(MAKE) -C ./x32/non_nacl_build
 
 x64/non_nacl_build:
 	-mkdir -p ./x64/non_nacl_build
-	cd ./x64/non_nacl_build && cmake -D CMAKE_C_COMPILER=clang -D ZLIB_INCLUDE_DIR=$(ZLIB_DIR) -D ZLIB_LIBRARY=$(ZLIB_DIR)/builds/x64/non_nacl_build/libz.a ../../../
+	cd ./x64/non_nacl_build && cmake -D CMAKE_C_COMPILER=clang -D CMAKE_C_FLAGS='$(CFLAGS64)' -D ZLIB_INCLUDE_DIR=$(ZLIB_DIR) -D ZLIB_LIBRARY=$(ZLIB_DIR)/builds/x64/non_nacl_build/libz.a ../../../
 	$(MAKE) -C ./x64/non_nacl_build
 
 x32/nacl_build:
 	-mkdir -p ./x32/nacl_build
-	cd ./x32/nacl_build && cmake -D CMAKE_C_COMPILER=$(NACL_CLANG32) -D CMAKE_C_FLAGS='-m32' -D M_LIBRARY=$(NACL_LIBM32) -D ZLIB_INCLUDE_DIR=$(ZLIB_DIR) -D ZLIB_LIBRARY=$(ZLIB_DIR)/builds/x32/nacl_build/libz.a -D PNG_SHARED=0 ../../../
+	cd ./x32/nacl_build && cmake -D CMAKE_C_COMPILER=$(NACL_CLANG32) -D CMAKE_C_FLAGS='$(CFLAGS32)' -D M_LIBRARY=$(NACL_LIBM32) -D ZLIB_INCLUDE_DIR=$(ZLIB_DIR) -D ZLIB_LIBRARY=$(ZLIB_DIR)/builds/x32/nacl_build/libz.a -D PNG_SHARED=0 ../../../
 	$(MAKE) -C ./x32/nacl_build
 	mkdir -p ./x32/nacl_build/mainCombine
 	cd ./x32/nacl_build/mainCombine && $(NACL_AR32) -x ../libpng.a
@@ -33,7 +36,7 @@ x32/nacl_build:
 
 x64/nacl_build:
 	-mkdir -p ./x64/nacl_build
-	cd ./x64/nacl_build && cmake -D CMAKE_C_COMPILER=$(NACL_CLANG64) -D M_LIBRARY=$(NACL_LIBM64) -D ZLIB_INCLUDE_DIR=$(ZLIB_DIR) -D ZLIB_LIBRARY=$(ZLIB_DIR)/builds/x64/nacl_build/libz.a -D PNG_SHARED=0 ../../../
+	cd ./x64/nacl_build && cmake -D CMAKE_C_COMPILER=$(NACL_CLANG64) -D CMAKE_C_FLAGS='$(CFLAGS64)' -D M_LIBRARY=$(NACL_LIBM64) -D ZLIB_INCLUDE_DIR=$(ZLIB_DIR) -D ZLIB_LIBRARY=$(ZLIB_DIR)/builds/x64/nacl_build/libz.a -D PNG_SHARED=0 ../../../
 	$(MAKE) -C ./x64/nacl_build
 	mkdir -p ./x64/nacl_build/mainCombine
 	cd ./x64/nacl_build/mainCombine && $(NACL_AR64) -x ../libpng.a
@@ -43,17 +46,17 @@ x64/nacl_build:
 
 x32/non_nacl_build_debug:
 	-mkdir -p ./x32/non_nacl_build_debug
-	cd ./x32/non_nacl_build_debug && cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_C_COMPILER=clang -D CMAKE_C_FLAGS='-m32' -D ZLIB_INCLUDE_DIR=$(ZLIB_DIR) -D ZLIB_LIBRARY=$(ZLIB_DIR)/builds/x32/non_nacl_build_debug/libz.a ../../../
+	cd ./x32/non_nacl_build_debug && cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_C_COMPILER=clang -D CMAKE_C_FLAGS='$(CFLAGS32)' -D ZLIB_INCLUDE_DIR=$(ZLIB_DIR) -D ZLIB_LIBRARY=$(ZLIB_DIR)/builds/x32/non_nacl_build_debug/libz.a ../../../
 	$(MAKE) -C ./x32/non_nacl_build_debug
 
 x64/non_nacl_build_debug:
 	-mkdir -p ./x64/non_nacl_build_debug
-	cd ./x64/non_nacl_build_debug && cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_C_COMPILER=clang -D ZLIB_INCLUDE_DIR=$(ZLIB_DIR) -D ZLIB_LIBRARY=$(ZLIB_DIR)/builds/x64/non_nacl_build_debug/libz.a ../../../
+	cd ./x64/non_nacl_build_debug && cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_C_COMPILER=clang -D CMAKE_C_FLAGS='$(CFLAGS64)' -D ZLIB_INCLUDE_DIR=$(ZLIB_DIR) -D ZLIB_LIBRARY=$(ZLIB_DIR)/builds/x64/non_nacl_build_debug/libz.a ../../../
 	$(MAKE) -C ./x64/non_nacl_build_debug
 
 x32/nacl_build_debug:
 	-mkdir -p ./x32/nacl_build_debug
-	cd ./x32/nacl_build_debug && cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_C_COMPILER=$(NACL_CLANG32) -D CMAKE_C_FLAGS='-m32' -D M_LIBRARY=$(NACL_LIBM32) -D ZLIB_INCLUDE_DIR=$(ZLIB_DIR) -D ZLIB_LIBRARY=$(ZLIB_DIR)/builds/x32/nacl_build_debug/libz.a -D PNG_SHARED=0 ../../../
+	cd ./x32/nacl_build_debug && cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_C_COMPILER=$(NACL_CLANG32) -D CMAKE_C_FLAGS='$(CFLAGS32)' -D M_LIBRARY=$(NACL_LIBM32) -D ZLIB_INCLUDE_DIR=$(ZLIB_DIR) -D ZLIB_LIBRARY=$(ZLIB_DIR)/builds/x32/nacl_build_debug/libz.a -D PNG_SHARED=0 ../../../
 	$(MAKE) -C ./x32/nacl_build_debug
 	mkdir -p ./x32/nacl_build_debug/mainCombine
 	cd ./x32/nacl_build_debug/mainCombine && $(NACL_AR32) -x ../libpng.a
@@ -61,7 +64,7 @@ x32/nacl_build_debug:
 
 x64/nacl_build_debug:
 	-mkdir -p ./x64/nacl_build_debug
-	cd ./x64/nacl_build_debug && cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_C_COMPILER=$(NACL_CLANG64) -D M_LIBRARY=$(NACL_LIBM64) -D ZLIB_INCLUDE_DIR=$(ZLIB_DIR) -D ZLIB_LIBRARY=$(ZLIB_DIR)/builds/x64/nacl_build_debug/libz.a -D PNG_SHARED=0 ../../../
+	cd ./x64/nacl_build_debug && cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_C_COMPILER=$(NACL_CLANG64) -D CMAKE_C_FLAGS='$(CFLAGS64)' -D M_LIBRARY=$(NACL_LIBM64) -D ZLIB_INCLUDE_DIR=$(ZLIB_DIR) -D ZLIB_LIBRARY=$(ZLIB_DIR)/builds/x64/nacl_build_debug/libz.a -D PNG_SHARED=0 ../../../
 	$(MAKE) -C ./x64/nacl_build_debug
 	mkdir -p ./x64/nacl_build_debug/mainCombine
 	cd ./x64/nacl_build_debug/mainCombine && $(NACL_AR64) -x ../libpng.a
@@ -69,7 +72,9 @@ x64/nacl_build_debug:
 
 ###########################################
 
-build: x32/non_nacl_build x64/non_nacl_build x32/nacl_build x64/nacl_build x32/non_nacl_build_debug x64/non_nacl_build_debug x32/nacl_build_debug x64/nacl_build_debug 
+build: nondebugbuild debugbuild
+nondebugbuild: x32/non_nacl_build x64/non_nacl_build x32/nacl_build x64/nacl_build
+debugbuild: x32/non_nacl_build_debug x64/non_nacl_build_debug x32/nacl_build_debug x64/nacl_build_debug
 clean:
 	-rm -rf ./x32
 	-rm -rf ./x64
