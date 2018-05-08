@@ -12,7 +12,7 @@ NACL_LIBM32=$(SANDBOXING_NACL_DIR)/native_client/toolchain/linux_x86/pnacl_newli
 NACL_LIBM64=$(SANDBOXING_NACL_DIR)/native_client/toolchain/linux_x86/pnacl_newlib/x86_64-nacl/lib/libm.a
 NACL_AR32=$(SANDBOXING_NACL_DIR)/native_client/toolchain/linux_x86/pnacl_newlib/bin/i686-nacl-ar
 NACL_AR64=$(SANDBOXING_NACL_DIR)/native_client/toolchain/linux_x86/pnacl_newlib/bin/x86_64-nacl-ar
-override CFLAGS += -fPIC
+override CFLAGS += -fPIC -O3
 CFLAGS32 = $(CFLAGS) -m32
 CFLAGS64 = $(CFLAGS) -m64
 
