@@ -5,6 +5,7 @@ SHELL := /bin/bash
 
 SANDBOXING_NACL_DIR=$(shell realpath ../../Sandboxing_NaCl)
 ZLIB_DIR=$(shell realpath ../../zlib_nacl)
+RLBOX_API=$(shell realpath ../../rlbox_api)
 NACL_CLANG32=$(SANDBOXING_NACL_DIR)/native_client/toolchain/linux_x86/pnacl_newlib/bin/i686-nacl-clang
 NACL_CLANG64=$(SANDBOXING_NACL_DIR)/native_client/toolchain/linux_x86/pnacl_newlib/bin/x86_64-nacl-clang
 NACL_CLANG++32=$(NACL_CLANG32)++
@@ -102,11 +103,17 @@ x64/wasm_build_debug:
 	$(call load_emsdk_path) && \
 	$(call convert_to_wasm,$(join $(abspath $@),/libpng.a),$(join $(abspath $@),/libpng_wasm.js),-g,$(ZLIB_DIR)/builds/x64/wasm_build_debug/libz.a)
 
+FLAGS_WHEN_LINKING_NACL_EXAMPLES_64_DEBUG = -pie -Wl,-z,relro -Wl,-z,now -Wl,-z,noexecstack -fPIC -Wl,-rpath=$(SANDBOXING_NACL_DIR)/native_client/scons-out/dbg-linux-x86-64/lib -L$(SANDBOXING_NACL_DIR)/native_client/scons-out/dbg-linux-x86-64/lib -ldyn_ldr -lsel -lnacl_error_code -lenv_cleanser -lnrd_xfer -lnacl_perf_counter -lnacl_base -limc -lnacl_fault_inject -lnacl_interval -lplatform_qual_lib -lvalidators -ldfa_validate_caller_x86_64 -lcpu_features -lvalidation_cache -lplatform -lgio -lnccopy_x86_64 -lrt -lpthread
+
+x64/example_static_debug: ../example_static.cpp
+	g++ -g ../example_static.cpp -I$(RLBOX_API) -I$(SANDBOXING_NACL_DIR)/native_client/src/trusted/dyn_ldr/ -L./x64/non_nacl_build_debug -l:libpng.a -L$(ZLIB_DIR)/builds/x64/non_nacl_build_debug -l:libz.a -ldl -o x64/example_static_debug $(FLAGS_WHEN_LINKING_NACL_EXAMPLES_64_DEBUG)
+
+
 ###########################################
 
 build: nondebugbuild debugbuild
 nondebugbuild: x32/non_nacl_build x64/non_nacl_build x32/nacl_build x64/nacl_build x64/wasm_build
-debugbuild: x32/non_nacl_build_debug x64/non_nacl_build_debug x32/nacl_build_debug x64/nacl_build_debug x64/wasm_build_debug
+debugbuild: x32/non_nacl_build_debug x64/non_nacl_build_debug x32/nacl_build_debug x64/nacl_build_debug x64/wasm_build_debug x64/example_static_debug
 clean:
 	-rm -rf ./x32
 	-rm -rf ./x64
