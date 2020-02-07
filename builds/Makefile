@@ -112,7 +112,7 @@ x64/example_static_debug: ../example_static.cpp
 ###########################################
 
 build32: x32/non_nacl_build x32/nacl_build x32/non_nacl_build_debug x32/nacl_build_debug
-build64: x64/non_nacl_build x64/nacl_build x64/non_nacl_build_debug x64/nacl_build_debug x64/example_static_debug
+build64: x64/non_nacl_build x64/nacl_build x64/non_nacl_build_debug x64/nacl_build_debug
 build: build32 build64
 
 clean:
